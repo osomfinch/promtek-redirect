@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Opening OneDrive Folder...</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0078d4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            color: #d83b01;
+            margin-top: 20px;
+        }
+        .success {
+            color: #107c10;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Opening in File Explorer...</h2>
+        <div class="spinner"></div>
+        <p id="status">Redirecting to your local OneDrive folder...</p>
+        <p id="error" class="error" style="display:none;"></p>
+    </div>
+
+    <script>
+        // Get the folder path from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const folderPath = urlParams.get('path');
+        
+        if (folderPath) {
+            // Log for debugging
+            console.log('Folder path:', folderPath);
+            
+            // Build the OneDrive protocol URL
+            const oneDriveUrl = 'onedrive://path/' + encodeURIComponent(folderPath);
+            console.log('Redirecting to:', oneDriveUrl);
+            
+            // Update status
+            document.getElementById('status').innerHTML = 
+                '<span class="success">✓ Opening folder...</span><br><small>If nothing happens, make sure the OneDrive handler is installed.</small>';
+            
+            // Attempt to open the folder
+            window.location.href = oneDriveUrl;
+            
+            // Try to close the tab after a delay (may not work in all browsers)
+            setTimeout(() => {
+                window.close();
+                // If close doesn't work, show a message
+                setTimeout(() => {
+                    document.querySelector('.container').innerHTML += 
+                        '<p style="margin-top:20px">You can close this tab now.</p>';
+                }, 500);
+            }, 2000);
+            
+        } else {
+            // Show error if no path provided
+            document.querySelector('.spinner').style.display = 'none';
+            document.getElementById('status').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error').innerHTML = 
+                'No folder path specified.<br>The URL should include a ?path= parameter.';
+        }
+    </script>
+</body>
+</html>
